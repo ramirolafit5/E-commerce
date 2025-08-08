@@ -2,9 +2,11 @@ package com.fl.ecommerce.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.MappingTarget;
 
 import com.fl.ecommerce.dto.CreateProductDTO;
 import com.fl.ecommerce.dto.ProductResponseDTO;
+import com.fl.ecommerce.dto.UpdateProductDTO;
 import com.fl.ecommerce.model.Product;
 
 /**
@@ -17,7 +19,7 @@ public interface ProductMapper {
 
     /* 
      * Mapea un CreateProductDTO a una entidad Product, ignorando campos como id, 
-     * creador y stock que se generan automáticamente
+     * y stock que se generan automáticamente, y creador que se genera con el autenticado actual.
      */
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "cantidadEnStock", ignore = true)
@@ -28,15 +30,12 @@ public interface ProductMapper {
      * Proceso inverso. Convierte un Product en ProductResponseDTO, 
      * incluyendo el nombre de usuario del creador como 'creadorUsername'.
      */
-    @Mapping(source = "creador.nombreUsuario", target = "creadorUsername")
+    //@Mapping(source = "creador.nombreUsuario", target = "creadorUsername")
     ProductResponseDTO toDto(Product entity);
 
-    /**
-     * Actualiza una entidad Producto existente con los datos de un ProductoActualizacionDTO.
-     * Los campos nulos en el DTO no sobrescribirán los valores existentes en la entidad.
-     * @param dto El DTO de actualización del producto.
-     * @param entity La entidad Producto a actualizar.
-     */
-/*     @Mapping(target = "id", ignore = true) // Ignorar el ID en la actualización
-    void updateEntityFromDto(UpdateProductDTO dto, @MappingTarget Product entity); */
+    // Actualizar entidad existente a partir de UpdateProductDTO
+    @Mapping(target = "id", ignore = true)               // No permitimos cambiar ID
+    @Mapping(target = "creador", ignore = true)          // No se modifica el creador
+    @Mapping(target = "cantidadEnStock", ignore = true)  // Lo dejamos sin cambios
+    void updateEntityFromDto(UpdateProductDTO dto, @MappingTarget Product entity);
 }

@@ -16,7 +16,21 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Map<String, String>> handleProductAlreadyExist(ProductAlreadyExist ex) {
         Map<String, String> response = new HashMap<>();
         response.put("error", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);  // 409 Conflict es apropiado aquí
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);  // 409 Conflict
+    }
+
+    @ExceptionHandler(ProductNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleProductNotFoundException(ProductNotFoundException ex) {
+        Map<String, String> response = new HashMap<>();
+        response.put("error", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);  // 404 Not found
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<Map<String, String>> handleAccessDeniedException(AccessDeniedException ex) {
+        Map<String, String> response = new HashMap<>();
+        response.put("error", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);  // 403 Forbidden
     }
 
     // Manejo genérico de errores (por ejemplo, errores inesperados)

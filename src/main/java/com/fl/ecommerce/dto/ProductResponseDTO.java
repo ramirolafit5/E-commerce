@@ -14,5 +14,4 @@ public class ProductResponseDTO {
     private String descripcion;
     private BigDecimal precio;
     private Integer cantidadEnStock;
-    private String creadorUsername;
 }

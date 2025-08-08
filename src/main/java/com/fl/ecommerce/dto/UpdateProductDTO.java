@@ -3,7 +3,6 @@ package com.fl.ecommerce.dto;
 import java.math.BigDecimal;
 
 import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
@@ -17,6 +16,4 @@ public class UpdateProductDTO {
     private String descripcion;
     @DecimalMin(value = "0.01", message = "El precio debe ser positivo")
     private BigDecimal precio;
-    @Min(value = 0, message = "La cantidad en stock no puede ser negativa")
-    private Integer cantidadEnStock;
 }

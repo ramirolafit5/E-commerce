@@ -1,10 +1,15 @@
 package com.fl.ecommerce.service;
 
+import java.util.List;
+
 import org.springframework.stereotype.Service;
 
 import com.fl.ecommerce.dto.CreateProductDTO;
 import com.fl.ecommerce.dto.ProductResponseDTO;
+import com.fl.ecommerce.dto.UpdateProductDTO;
+import com.fl.ecommerce.handler.AccessDeniedException;
 import com.fl.ecommerce.handler.ProductAlreadyExist;
+import com.fl.ecommerce.handler.ProductNotFoundException;
 import com.fl.ecommerce.mapper.ProductMapper;
 import com.fl.ecommerce.model.Product;
 import com.fl.ecommerce.model.User;
@@ -55,6 +60,57 @@ public class ProductService {
         Product productoGuardado = productRepository.save(producto);
         return productMapper.toDto(productoGuardado);
     }
+
+    public List<ProductResponseDTO> getAllProductsFromCurrentUser(){
+        User authUser = authUtil.getAuthenticatedUser();
+
+        List<Product> productos = productRepository.findByCreador(authUser);
+
+        //Si no hay nada en la lista entonces podriamos largar un mensaje pero asi lo veo limpio
+
+        return productos.stream()
+                .map(productMapper::toDto)
+                .toList();
+    }
+
+    @Transactional
+    public ProductResponseDTO updateProducto(Long id, UpdateProductDTO dto) {
+        User authUser = authUtil.getAuthenticatedUser();
+
+        // Validar que exista el producto
+        Product productoExistente = productRepository.findById(id)
+            .orElseThrow(() -> new ProductNotFoundException("Producto no encontrado con id: " + id));
+
+        // Validar que el usuario autenticado sea el creador
+        if (!productoExistente.getCreador().getId().equals(authUser.getId())) {
+            throw new AccessDeniedException("No tenés permiso para actualizar este producto.");
+        }
+
+        // Usar el mapper para actualizar solo los campos permitidos
+        productMapper.updateEntityFromDto(dto, productoExistente);
+
+        // Guardar los cambios
+        Product productoActualizado = productRepository.save(productoExistente);
+
+        // Mapear a DTO para respuesta
+        return productMapper.toDto(productoActualizado);
+    }
+
+    @Transactional
+    public void eliminarProducto(Long id) {
+        User authUser = authUtil.getAuthenticatedUser();
+
+        // Validar que exista el producto
+        Product productoExistente = productRepository.findById(id)
+            .orElseThrow(() -> new ProductNotFoundException("Producto no encontrado con id: " + id));
+
+        // Validar que el usuario autenticado sea el creador
+        if (!productoExistente.getCreador().getId().equals(authUser.getId())) {
+            throw new AccessDeniedException("No tenés permiso para actualizar este producto.");
+        }
+        productRepository.deleteById(id);
+    }
+
 
     /**
      * Obtiene un producto por su ID.
