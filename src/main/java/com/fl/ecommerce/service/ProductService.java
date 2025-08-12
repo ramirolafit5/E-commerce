@@ -9,7 +9,7 @@ import com.fl.ecommerce.dto.ProductResponseDTO;
 import com.fl.ecommerce.dto.UpdateProductDTO;
 import com.fl.ecommerce.handler.AccessDeniedException;
 import com.fl.ecommerce.handler.ProductAlreadyExist;
-import com.fl.ecommerce.handler.ProductNotFoundException;
+import com.fl.ecommerce.handler.ResourceNotFoundException;
 import com.fl.ecommerce.mapper.ProductMapper;
 import com.fl.ecommerce.model.Product;
 import com.fl.ecommerce.model.User;
@@ -79,7 +79,7 @@ public class ProductService {
 
         // Validar que exista el producto
         Product productoExistente = productRepository.findById(id)
-            .orElseThrow(() -> new ProductNotFoundException("Producto no encontrado con id: " + id));
+            .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado con id: " + id));
 
         // Validar que el usuario autenticado sea el creador
         if (!productoExistente.getCreador().getId().equals(authUser.getId())) {
@@ -102,7 +102,7 @@ public class ProductService {
 
         // Validar que exista el producto
         Product productoExistente = productRepository.findById(id)
-            .orElseThrow(() -> new ProductNotFoundException("Producto no encontrado con id: " + id));
+            .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado con id: " + id));
 
         // Validar que el usuario autenticado sea el creador
         if (!productoExistente.getCreador().getId().equals(authUser.getId())) {

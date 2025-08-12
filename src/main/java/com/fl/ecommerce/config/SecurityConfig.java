@@ -75,9 +75,7 @@ public class SecurityConfig {
                     .requestMatchers(HttpMethod.POST, "/api/autenticacion/registro").permitAll()
                     .requestMatchers(HttpMethod.POST, "/api/autenticacion/login").permitAll()
                     .requestMatchers(HttpMethod.POST,"/api/productos/**").hasAnyRole("USER", "ADMIN")
-                    .requestMatchers(HttpMethod.POST, "/api/pedidos").hasAnyRole("USER", "ADMIN")
-                    .requestMatchers(HttpMethod.GET, "/api/pedidos/usuario/**").hasAnyRole("USER", "ADMIN")
-                    .requestMatchers(HttpMethod.GET, "/api/pedidos/**").hasRole("ADMIN")
+                    .requestMatchers(HttpMethod.POST, "/api/pedidos/**").hasAnyRole("USER", "ADMIN")
                     .anyRequest().authenticated()
             )
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));

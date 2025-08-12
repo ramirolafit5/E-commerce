@@ -32,5 +32,6 @@ public class OrderDetail {
     private Product producto;
 
     private Integer cantidad;
+    
     private BigDecimal precioUnitario;
 }

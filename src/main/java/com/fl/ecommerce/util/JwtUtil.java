@@ -33,7 +33,7 @@ public class JwtUtil {
                 .claim("id", userTokenDTO.getId())
                 .claim("roles", userTokenDTO.getRoles())
                 .issuedAt(new Date(System.currentTimeMillis()))
-                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10)) // 10 horas
+                .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10 * 1000)) // 10 horas * 100 para que sean mas de 40 dias
                 .signWith(getSigningKey())
                 .compact();
     }
