@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.fl.ecommerce.dto.AutenticationRequestDTO;
 import com.fl.ecommerce.dto.RegisterUserDTO;
 import com.fl.ecommerce.dto.UserTokenDTO;
-import com.fl.ecommerce.handler.UserAlreadyExist;
+import com.fl.ecommerce.handler.UnauthorizedException;
 import com.fl.ecommerce.service.UserService;
 
 import jakarta.validation.Valid;
@@ -33,7 +33,7 @@ public class AutenticationController {
         try {
             userService.registrarUsuario(registroDTO); // Usar el método del UserService
             return new ResponseEntity<>("Usuario registrado exitosamente!", HttpStatus.CREATED);
-        } catch (UserAlreadyExist e) {
+        } catch (UnauthorizedException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
         }
     }

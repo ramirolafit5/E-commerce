@@ -36,14 +36,14 @@ public class OrderController {
         return ResponseEntity.noContent().build(); //hace lo mismo que return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @PostMapping("/agregar-detalle")
+    @PostMapping("/agregar-producto")
     public ResponseEntity<OrderDTO> agregarProducto(@Valid @RequestBody AddProductToOrderDTO dto) {
         OrderDTO updatedOrder = orderService.agregarProductoAlPedido(dto);
         return ResponseEntity.ok(updatedOrder);
     }
 
     @DeleteMapping("/{pedidoId}/producto/{productoId}")
-    public ResponseEntity<Void> eliminarDetallePedido(@PathVariable Long pedidoId, @PathVariable Long productoId) {
+    public ResponseEntity<Void> eliminarProductoPedido(@PathVariable Long pedidoId, @PathVariable Long productoId) {
         orderService.eliminarProductoDelPedido(pedidoId, productoId);
         return ResponseEntity.noContent().build(); //hace lo mismo que return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

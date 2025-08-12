@@ -8,7 +8,7 @@ import com.fl.ecommerce.dto.CreateProductDTO;
 import com.fl.ecommerce.dto.ProductResponseDTO;
 import com.fl.ecommerce.dto.UpdateProductDTO;
 import com.fl.ecommerce.handler.AccessDeniedException;
-import com.fl.ecommerce.handler.ProductAlreadyExist;
+import com.fl.ecommerce.handler.ConflictException;
 import com.fl.ecommerce.handler.ResourceNotFoundException;
 import com.fl.ecommerce.mapper.ProductMapper;
 import com.fl.ecommerce.model.Product;
@@ -49,7 +49,7 @@ public class ProductService {
         User creador = authUtil.getAuthenticatedUser();
         
         if (productRepository.existsByNombreAndCreador(dto.getNombre(), creador)) {
-            throw new ProductAlreadyExist("El producto ya fue creado por este usuario.");
+            throw new ConflictException("El producto ya fue creado por este usuario.");
         }
 
         Product producto = productMapper.toEntity(dto);

@@ -16,8 +16,8 @@ import org.springframework.stereotype.Service;
 import com.fl.ecommerce.dto.AutenticationRequestDTO;
 import com.fl.ecommerce.dto.RegisterUserDTO;
 import com.fl.ecommerce.dto.UserTokenDTO;
-import com.fl.ecommerce.handler.NonExistentUser;
-import com.fl.ecommerce.handler.UserAlreadyExist;
+import com.fl.ecommerce.handler.ConflictException;
+import com.fl.ecommerce.handler.UnauthorizedException;
 import com.fl.ecommerce.model.User;
 import com.fl.ecommerce.model.enums.Rol;
 import com.fl.ecommerce.repository.UserRepository;
@@ -55,7 +55,7 @@ public class UserService implements UserDetailsService {
                     )
             );
         } catch (BadCredentialsException ex) {
-            throw new NonExistentUser("Usuario o contraseña incorrectos");
+            throw new UnauthorizedException("Usuario o contraseña incorrectos");
         }
 
         User usuario = (User) loadUserByUsername(requestDTO.getNombreUsuario());
@@ -87,7 +87,7 @@ public class UserService implements UserDetailsService {
     @Transactional
     public User registrarUsuario(RegisterUserDTO registroDTO) {
         if (userRepository.existsByNombreUsuario(registroDTO.getNombreUsuario())) {
-            throw new UserAlreadyExist("El nombre de usuario '" + registroDTO.getNombreUsuario() + "' ya está en uso.");
+            throw new ConflictException("El nombre de usuario '" + registroDTO.getNombreUsuario() + "' ya está en uso.");
         }
         User usuario = new User();
         usuario.setNombreUsuario(registroDTO.getNombreUsuario());

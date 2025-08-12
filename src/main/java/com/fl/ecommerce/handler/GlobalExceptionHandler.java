@@ -11,34 +11,41 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    //Desde aca comunico ProductAlreadyExist junto con el servicio
-    @ExceptionHandler(ProductAlreadyExist.class)
-    public ResponseEntity<Map<String, String>> handleProductAlreadyExist(ProductAlreadyExist ex) {
-        Map<String, String> response = new HashMap<>();
-        response.put("error", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(response);  // 409 Conflict
+    @ExceptionHandler(ResourceNotFoundException.class) // 404
+    public ResponseEntity<Map<String, String>> handleNotFound(ResourceNotFoundException ex) {
+        return buildResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<Map<String, String>> handleProductNotFoundException(ResourceNotFoundException ex) {
-        Map<String, String> response = new HashMap<>();
-        response.put("error", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);  // 404 Not found
+    @ExceptionHandler(AccessDeniedException.class) // 403
+    public ResponseEntity<Map<String, String>> handleAccessDenied(AccessDeniedException ex) {
+        return buildResponse(ex.getMessage(), HttpStatus.FORBIDDEN);
     }
 
-    @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity<Map<String, String>> handleAccessDeniedException(AccessDeniedException ex) {
-        Map<String, String> response = new HashMap<>();
-        response.put("error", ex.getMessage());
-        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(response);  // 403 Forbidden
+    @ExceptionHandler(ConflictException.class) // 409
+    public ResponseEntity<Map<String, String>> handleConflict(ConflictException ex) {
+        return buildResponse(ex.getMessage(), HttpStatus.CONFLICT);
     }
 
-    // Manejo genérico de errores (por ejemplo, errores inesperados)
-/*     @ExceptionHandler(Exception.class)
+    @ExceptionHandler(BadRequestException.class) // 400
+    public ResponseEntity<Map<String, String>> handleBadRequest(BadRequestException ex) {
+        return buildResponse(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(UnauthorizedException.class) // 401
+    public ResponseEntity<Map<String, String>> handleUnauthorized(UnauthorizedException ex) {
+        return buildResponse(ex.getMessage(), HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(Exception.class) // 500 genérico
     public ResponseEntity<Map<String, String>> handleGenericException(Exception ex) {
-        Map<String, String> response = new HashMap<>();
-        response.put("error", "Ocurrió un error inesperado.");
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-    } */
+        return buildResponse("Ocurrió un error inesperado.", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    private ResponseEntity<Map<String, String>> buildResponse(String mensaje, HttpStatus status) {
+        Map<String, String> body = new HashMap<>();
+        body.put("error", mensaje);
+        return ResponseEntity.status(status).body(body);
+    }
 }
+
 
