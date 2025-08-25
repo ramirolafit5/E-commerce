@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fl.ecommerce.dto.AgregarStockRequestDTO;
 import com.fl.ecommerce.dto.CreateProductDTO;
 import com.fl.ecommerce.dto.ProductResponseDTO;
 import com.fl.ecommerce.dto.UpdateProductDTO;
@@ -63,10 +64,27 @@ public class ProductController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    /* @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'USER')") // Accesible por ADMIN o USER
-    public ResponseEntity<ProductoRespuestaDTO> obtenerProductoPorId(@PathVariable Long id) {
-        ProductoRespuestaDTO producto = productoService.obtenerProductoPorId(id);
+    @PostMapping("/agregar-stock")
+    public ResponseEntity<ProductResponseDTO> agregarStock(@Valid @RequestBody AgregarStockRequestDTO dto) {
+        ProductResponseDTO productoActualizado = productService.agregarStockAProducto(dto);
+        return ResponseEntity.ok(productoActualizado);
+    }
+
+    @PostMapping("/incrementaren1/{id}")
+    public ResponseEntity<ProductResponseDTO> incrementarStockEn1(@PathVariable Long id) {
+        ProductResponseDTO stockActualizado = productService.incrementarStock(id);
+        return ResponseEntity.ok(stockActualizado);
+    }
+
+    @PostMapping("/decrementaren1/{id}")
+    public ResponseEntity<ProductResponseDTO> decrementarStockEn1(@PathVariable Long id) {
+        ProductResponseDTO stockActualizado = productService.decrementarStock(id);
+        return ResponseEntity.ok(stockActualizado);
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<ProductResponseDTO> obtenerProductoPorId(@PathVariable Long id) {
+        ProductResponseDTO producto = productService.getProductById(id);
         return new ResponseEntity<>(producto, HttpStatus.OK);
-    } */
+    }
 }

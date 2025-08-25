@@ -64,7 +64,7 @@ public class SecurityConfig {
         http
             .cors(cors -> cors.configurationSource(request -> {
             CorsConfiguration config = new CorsConfiguration();
-            config.setAllowedOrigins(List.of("http://localhost:3000")); // Aqui va la URL del frontend
+            config.setAllowedOrigins(List.of("http://localhost:5173")); // Aqui va la URL del frontend
             config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
             config.setAllowedHeaders(List.of("*"));
             config.setAllowCredentials(true);
@@ -72,8 +72,9 @@ public class SecurityConfig {
             }))
             .csrf(AbstractHttpConfigurer::disable)
             .authorizeHttpRequests(authorize -> authorize
-                    .requestMatchers(HttpMethod.POST, "/api/autenticacion/registro").permitAll()
+                    .requestMatchers(HttpMethod.POST, "/api/autenticacion/registro").permitAll() //aca va a ir rol de admin pero por el momento lo dejo asi
                     .requestMatchers(HttpMethod.POST, "/api/autenticacion/login").permitAll()
+                    .requestMatchers(HttpMethod.GET, "/api/autenticacion/me").hasAnyRole("USER", "ADMIN")
                     .requestMatchers(HttpMethod.POST,"/api/productos/**").hasAnyRole("USER", "ADMIN")
                     .requestMatchers(HttpMethod.POST, "/api/pedidos/**").hasAnyRole("USER", "ADMIN")
                     .anyRequest().authenticated()

@@ -38,6 +38,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(Exception.class) // 500 genérico
     public ResponseEntity<Map<String, String>> handleGenericException(Exception ex) {
+        ex.printStackTrace(); // me sirvió para ver error en consola
         return buildResponse("Ocurrió un error inesperado.", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 

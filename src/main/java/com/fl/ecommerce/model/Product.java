@@ -45,4 +45,15 @@ public class Product {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id")
     private User creador;
+
+    public void incrementarStock() {
+        this.cantidadEnStock++;
+    }
+
+    public void decrementarStock() {
+        if (this.cantidadEnStock == 0) {
+            throw new IllegalStateException("No se puede decrementar stock debajo de 0");
+        }
+        this.cantidadEnStock--;
+    }
 }

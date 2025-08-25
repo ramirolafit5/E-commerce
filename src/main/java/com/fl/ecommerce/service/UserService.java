@@ -7,6 +7,8 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -15,7 +17,9 @@ import org.springframework.stereotype.Service;
 
 import com.fl.ecommerce.dto.AutenticationRequestDTO;
 import com.fl.ecommerce.dto.RegisterUserDTO;
+import com.fl.ecommerce.dto.UserDTO;
 import com.fl.ecommerce.dto.UserTokenDTO;
+import com.fl.ecommerce.handler.AccessDeniedException;
 import com.fl.ecommerce.handler.ConflictException;
 import com.fl.ecommerce.handler.UnauthorizedException;
 import com.fl.ecommerce.model.User;
@@ -86,13 +90,44 @@ public class UserService implements UserDetailsService {
      */
     @Transactional
     public User registrarUsuario(RegisterUserDTO registroDTO) {
+        // Obtener el usuario autenticado actual y sus roles
+        Authentication authUser = SecurityContextHolder.getContext().getAuthentication();
+        if (authUser == null || !authUser.isAuthenticated()) {
+            throw new UnauthorizedException("No estás autenticado para realizar esta acción.");
+        }
+
+        // Verificar si tiene rol ADMIN
+        boolean esAdmin = authUser.getAuthorities().stream()
+                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"));
+
+        if (!esAdmin) {
+            throw new AccessDeniedException("No tenés permisos para registrar usuarios.");
+        }
+
         if (userRepository.existsByNombreUsuario(registroDTO.getNombreUsuario())) {
             throw new ConflictException("El nombre de usuario '" + registroDTO.getNombreUsuario() + "' ya está en uso.");
         }
+
         User usuario = new User();
         usuario.setNombreUsuario(registroDTO.getNombreUsuario());
         usuario.setPassword(passwordEncoder.encode(registroDTO.getContrasena()));
         usuario.setRoles(List.of(registroDTO.getRol()));
         return userRepository.save(usuario);
+    }
+
+    public UserDTO obtenerUsuarioAutenticado() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if (auth == null || !auth.isAuthenticated() || auth.getPrincipal().equals("anonymousUser")) {
+            throw new UnauthorizedException("No hay un usuario autenticado");
+        }
+
+        User usuario = (User) auth.getPrincipal();
+
+        return new UserDTO(
+                usuario.getId(),
+                usuario.getNombreUsuario(),
+                usuario.getRoles()
+        );
     }
 }

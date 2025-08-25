@@ -17,7 +17,7 @@ public class AuthUtil {
     }
 
     /* 
-     * Obtenemos el username del usuario autenticado
+     * Obtenemos el usuario autenticado
      */
     public User getAuthenticatedUser() {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();

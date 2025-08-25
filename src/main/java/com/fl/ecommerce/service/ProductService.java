@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 
+import com.fl.ecommerce.dto.AgregarStockRequestDTO;
 import com.fl.ecommerce.dto.CreateProductDTO;
 import com.fl.ecommerce.dto.ProductResponseDTO;
 import com.fl.ecommerce.dto.UpdateProductDTO;
@@ -64,9 +65,7 @@ public class ProductService {
     public List<ProductResponseDTO> getAllProductsFromCurrentUser(){
         User authUser = authUtil.getAuthenticatedUser();
 
-        List<Product> productos = productRepository.findByCreador(authUser);
-
-        //Si no hay nada en la lista entonces podriamos largar un mensaje pero asi lo veo limpio
+        List<Product> productos = productRepository.findByCreadorOrderByIdAsc(authUser);
 
         return productos.stream()
                 .map(productMapper::toDto)
@@ -111,61 +110,47 @@ public class ProductService {
         productRepository.deleteById(id);
     }
 
+    @Transactional
+    public ProductResponseDTO agregarStockAProducto(AgregarStockRequestDTO dto) {
+        User usuarioAutenticado = authUtil.getAuthenticatedUser();
 
-    /**
-     * Obtiene un producto por su ID.
-     * @param id ID del producto.
-     * @return El DTO del producto encontrado.
-     * @throws RecursoNoEncontradoException Si el producto no es encontrado.
-     */
-/*     @Transactional(readOnly = true) // Solo lectura, no requiere bloqueo
-    public ProductoRespuestaDTO obtenerProductoPorId(Long id) {
-        Product product = productRepository.findById(id)
-                .orElseThrow(() -> new RecursoNoEncontradoException("Producto", "ID", id));
-        return productMapper.toDto(product);
-    } */
+        Product producto = productRepository.findById(dto.getProductoId())
+            .orElseThrow(() -> new ResourceNotFoundException("Producto no encontrado"));
 
-    /**
-     * Obtiene todos los productos de forma paginada.
-     * @param pageable Objeto que contiene la información de paginación y ordenamiento.
-     * @return Una página de DTOs de productos.
-     */
-/*     @Transactional(readOnly = true)
-    public Page<ProductoRespuestaDTO> obtenerTodosLosProductos(Pageable pageable) {
-        // El repositorio ya devuelve una Page, solo necesitamos mapear su contenido.
-        return productoRepository.findAll(pageable)
-                .map(productoMapper::toDto);
-    } */
-
-    /**
-     * Actualiza un producto existente.
-     * @param id ID del producto a actualizar.
-     * @param dto Datos para la actualización del producto.
-     * @return El DTO del producto actualizado.
-     * @throws RecursoNoEncontradoException Si el producto no es encontrado.
-     */
-/*     @Transactional
-    public ProductoRespuestaDTO actualizarProducto(Long id, ProductoActualizacionDTO dto) {
-        Producto productoExistente = productoRepository.findById(id)
-                .orElseThrow(() -> new RecursoNoEncontradoException("Producto", "ID", id));
-
-        // Aplica solo los campos no nulos del DTO a la entidad existente
-        productoMapper.updateEntityFromDto(dto, productoExistente);
-
-        Producto productoActualizado = productoRepository.save(productoExistente);
-        return productoMapper.toDto(productoActualizado);
-    } */
-
-    /**
-     * Elimina un producto por su ID.
-     * @param id ID del producto a eliminar.
-     * @throws RecursoNoEncontradoException Si el producto no es encontrado.
-     */
-/*     @Transactional
-    public void eliminarProducto(Long id) {
-        if (!productoRepository.existsById(id)) {
-            throw new RecursoNoEncontradoException("Producto", "ID", id);
+        if (!producto.getCreador().getId().equals(usuarioAutenticado.getId())) {
+            throw new AccessDeniedException("No tenés permiso para usar este producto");
         }
-        productoRepository.deleteById(id);
-    } */
+
+        producto.setCantidadEnStock(producto.getCantidadEnStock() + dto.getCantidad());
+        Product productoActualizado = productRepository.save(producto);
+        return productMapper.toDto(productoActualizado);
+    }
+
+    public ProductResponseDTO incrementarStock(Long id) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+
+        product.incrementarStock();
+        Product stockActualizado = productRepository.save(product);
+        return productMapper.toDto(stockActualizado);
+    }
+
+    public ProductResponseDTO decrementarStock(Long id) {
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+
+        product.decrementarStock();
+        Product stockActualizado = productRepository.save(product);
+        return productMapper.toDto(stockActualizado);
+    }
+
+    public ProductResponseDTO getProductById(Long productId) {
+        User authUser = authUtil.getAuthenticatedUser();
+
+        Product product = productRepository.findByIdAndCreador(productId, authUser)
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+
+        return productMapper.toDto(product);
+    }
+
 }
